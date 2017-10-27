@@ -1,0 +1,12 @@
+# Use ubuntu as parent image
+FROM ubuntu:trusty
+
+RUN apt-get update && apt-get install -y vim python-dev python3-dev python-pip python3-pip gcc clang curl capnproto && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /src
+
+# Copy the current directory contents into the container at /src
+ADD . /src
+
+RUN pip install -r requirements.txt
