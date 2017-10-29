@@ -22,6 +22,7 @@ def fixbugs(loggin_info):
 
     bugs_to_fix = res['bugfix']['bugs']
     bugs_remaining = bugs_to_fix - 1
+    total_fixed = 0
     finished = False
 
     while not finished:
@@ -38,13 +39,23 @@ def fixbugs(loggin_info):
         print(res)
 
         bugs_remaining -= 1
+        total_fixed += 1
+
+        if bugs_remaining < -1:
+            finished = True
 
         if 'bugfix' in res and 'message' in res['bugfix']:
             bugs_to_fix = res['bugfix']['bugs']
             bugs_remaining = bugs_to_fix - 1
 
-        if bugs_remaining < 0:
-            bugs_remaining = 0
+
+    request_payload = request_schema_capnp.Request.new_message()
+    bugfix_data = request_payload.init('bugfix')
+    bugfix_data.bugs =  total_fixed
+    bugfix_data.message = "I solved a huge amount of bug. I am proud of myself."
+    s.send(request_payload.to_bytes())
+    res = s.recv(BUFFER_SIZE)
+    res = response_schema_capnp.Response.from_bytes(res).to_dict()
 
     print(res)
     s.close()
