@@ -1,3 +1,0 @@
-endpoint = ''
-team = ''
-hash = ''
