@@ -1,5 +1,6 @@
 import socket
 import capnp
+from Board import Board
 
 capnp.remove_import_hook()
 request_schema_capnp = capnp.load('./protokoll/Command.capnp')
@@ -19,9 +20,10 @@ def connect(loggin_info):
     import time
     time.sleep(1)
     data = s.recv(BUFFER_SIZE)
-    print(len(data))
-    res = response_schema_capnp.Response.from_bytes(data).to_dict()
 
-    print(res)
+    res = response_schema_capnp.Response.from_bytes(data).to_dict()
+    board = Board(res)
+    print(board)
+
     s.close()
     return data
