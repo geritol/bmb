@@ -24,6 +24,7 @@ def connect(loggin_info):
     res = response_schema_capnp.Response.from_bytes(data).to_dict()
     board = Board(res)
     print(board)
+    print(str(board.evaluate()))
 
     s.close()
     return data
