@@ -6,7 +6,7 @@ services:
   - docker
 
 before_install:
-- docker run -v $(pwd):/src -it -P geritol/blackmamba
+- docker run geritol/blackmamba /src -c "pytest"
 
 script:
   - pytest # or py.test for Python versions 3.5 and below
