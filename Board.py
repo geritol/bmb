@@ -12,9 +12,9 @@ class Board:
         for i, line in enumerate(self.state['cells']):
             for j, cell in enumerate(line):
                 value = self.helper_draw_cell(cell)
-                if self.cell_has_enemy(j, i):
+                if self.cell_has_enemy(i, j):
                     value = 'X'
-                if self.cell_has_unit(j, i):
+                if self.cell_has_unit(i, j):
                     value = 'O'
 
                 res += value
@@ -36,7 +36,8 @@ class Board:
         # TODO: implement search algo to closest cell that is not ours
 
         # -- tail collision
-        # TODO: keep track of our tail
+        # TODO: keep track of our tail && get if some enemy is on it or not
+        # tail:
 
         # --- head collision
         for unit in self.state['units']:
@@ -67,6 +68,8 @@ class Board:
         return False
 
     def helper_draw_cell(self, cell):
+        if 'unit' in cell['attack']:
+            return '-'
         if cell['owner'] == ENEMY:
             return '.'
         elif cell['owner'] == US:
