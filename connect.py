@@ -12,4 +12,4 @@ login_data = request_payload.init('commands').init('login')
 login_data.team = settings.team
 login_data.hash = settings.hash
 
-res = connect(request_payload)
+connect(request_payload)
