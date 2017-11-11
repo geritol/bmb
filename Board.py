@@ -1,9 +1,11 @@
+import pytest
+
 US = 1
 ENEMY = 0
 
 SCORE = {
     'cell-in-our-possession-multiplier': 10,
-    'tail-collision': -500,
+    'tail-collision': -400,
     'head-collision': -500,
     'off-board': -1000
 }
@@ -12,8 +14,8 @@ SCORE = {
 class Board:
     def __init__(self, state):
         self.state = state
-        self.height = 100
-        self.width = 80
+        self.height = len(self.state['cells'])
+        self.width = len(self.state['cells'][0])
 
     def __str__(self):
         """
@@ -51,14 +53,15 @@ class Board:
 
         # -- tail collision
         for i, line in enumerate(self.state['cells']):
-            for j in enumerate(line):
-                if self.cell_has_unit(i, j):
+            for j, cell in enumerate(line):
+                if self.is_cell_pending(cell) and self.cell_has_enemy(i, j):
                     score += SCORE['tail-collision']
 
         # --- head collision
         for unit in self.state['units']:
             collision = self.cell_has_enemy(unit['position']['x'], unit['position']['y'])
-            if collision: score += SCORE['head-collision']
+            if collision:
+                score += SCORE['head-collision']
 
         # ---- off board
         for unit in self.state['units']:
@@ -67,6 +70,9 @@ class Board:
                 score += SCORE['off-board']
                 return score
         return score
+
+    def is_cell_pending(self, cell):
+        return 'unit' in cell['attack'] and cell['attack']['can']
 
     def get_cell_count_owned_by(self, player):
         cells_owned = 0
@@ -102,3 +108,41 @@ class Board:
         for unit in self.state['units']:
             res = unit['position']['x'] == x and unit['position']['y'] == y
         return res
+
+
+def test_board_scoring_head_collision():
+    board = Board({
+        'cells': [[{'attack': {'can': True}, 'owner': US}]],
+        'enemies': [{'direction': {'vertical': 'up', 'horizontal': 'left'}, 'position': {'x': 0, 'y': 0}}],
+        'units': [{'position': {'x': 0, 'y': 0}, 'killer': 6, 'owner': US, 'health': 3, 'direction': 'right'}]
+    })
+    assert board.evaluate() == SCORE['cell-in-our-possession-multiplier'] + SCORE['head-collision']
+
+
+testdata = [
+    ({'x': -1, 'y': -1}),
+    ({'x': -1, 'y': 0}),
+    ({'x': 0, 'y': -1}),
+    ({'x': 1, 'y': 1}),
+    ({'x': 1, 'y': 0}),
+    ({'x': 0, 'y': 1}),
+]
+
+
+@pytest.mark.parametrize("position", testdata)
+def test_board_scoring_off_board(position):
+    board = Board({
+        'cells': [[{'attack': {'can': True}, 'owner': US}]],
+        'enemies': [{'direction': {'vertical': 'up', 'horizontal': 'left'}, 'position': {'x': 0, 'y': 0}}],
+        'units': [{'position': position, 'killer': 6, 'owner': US, 'health': 3, 'direction': 'right'}]
+    })
+    assert board.evaluate() == SCORE['cell-in-our-possession-multiplier'] + SCORE['off-board']
+
+
+def test_board_scoring_tail_collision():
+    board = Board({
+        'cells': [[{'attack': {'can': True}, 'owner': US}, {'attack': {'can': True, 'unit': 0}, 'owner': ENEMY}]],
+        'enemies': [{'direction': {'vertical': 'up', 'horizontal': 'left'}, 'position': {'x': 0, 'y': 1}}],
+        'units': [{'position': {'x': 0, 'y': 0}, 'killer': 6, 'owner': US, 'health': 3, 'direction': 'right'}]
+    })
+    assert board.evaluate() == SCORE['cell-in-our-possession-multiplier'] + SCORE['tail-collision']
