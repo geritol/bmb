@@ -1,6 +1,14 @@
 US = 1
 ENEMY = 0
 
+SCORE = {
+    'cell-in-our-possession-multiplier': 10,
+    'tail-collision': -500,
+    'head-collision': -500,
+    'off-board': -1000
+}
+
+
 class Board:
     def __init__(self, state):
         self.state = state
@@ -8,6 +16,10 @@ class Board:
         self.width = 80
 
     def __str__(self):
+        """
+        Returns the Board in a more human readable format
+        :return: str representation of the Board
+        """
         res = ''
         for i, line in enumerate(self.state['cells']):
             for j, cell in enumerate(line):
@@ -30,25 +42,29 @@ class Board:
 
         # +++ number off cells owned
         cell_count_owned = self.get_cell_count_owned_by(US)
-        score += cell_count_owned * 10
+        score += cell_count_owned * SCORE['cell-in-our-possession-multiplier']
 
         # ++ closeness to 'border'
         # TODO: implement search algo to closest cell that is not ours
+        # Probably wont need this for now, as other factors will favorise
+        # actions that lead to getting cells in our possession
 
         # -- tail collision
-        # TODO: keep track of our tail && get if some enemy is on it or not
-        # tail:
+        for i, line in enumerate(self.state['cells']):
+            for j in enumerate(line):
+                if self.cell_has_unit(i, j):
+                    score += SCORE['tail-collision']
 
         # --- head collision
         for unit in self.state['units']:
             collision = self.cell_has_enemy(unit['position']['x'], unit['position']['y'])
-            if collision: score -= 500
+            if collision: score += SCORE['head-collision']
 
         # ---- off board
         for unit in self.state['units']:
             is_off = self.is_off_board(unit['position']['x'], unit['position']['y'])
             if is_off:
-                score -= 1000
+                score += SCORE['off-board']
                 return score
         return score
 
