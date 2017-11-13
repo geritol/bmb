@@ -48,13 +48,16 @@ class Board:
                     score += SCORE['tail-collision']
 
         # --- head collision
-        for unit in self.state['units']:
+        for unit in self.get_units():
             collision = self.cell_has_enemy(unit['position']['x'], unit['position']['y'])
             if collision:
                 score += SCORE['head-collision']
 
+        # --- our head collides with the tail
+        # TODO!
+
         # ---- off board
-        for unit in self.state['units']:
+        for unit in self.get_units():
             is_off = self.is_off_board(unit['position']['x'], unit['position']['y'])
             if is_off:
                 score += SCORE['off-board']
@@ -87,14 +90,23 @@ class Board:
         elif cell['owner'] == US:
             return ':'
 
+    def get_enemies(self):
+        return self.state['enemies']
+
+    def get_units(self):
+        return self.state['units']
+
+    def get_cell(self, x, y):
+        return self.state['cells'][y][x]
+
     def cell_has_enemy(self, x, y):
         res = False
-        for enemy in self.state['enemies']:
+        for enemy in self.get_enemies():
             res = enemy['position']['x'] == x and enemy['position']['y'] == y
         return res
 
     def cell_has_unit(self, x, y):
         res = False
-        for unit in self.state['units']:
+        for unit in self.get_units():
             res = unit['position']['x'] == x and unit['position']['y'] == y
         return res
