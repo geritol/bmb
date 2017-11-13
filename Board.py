@@ -41,6 +41,13 @@ class Board:
         # Probably wont need this for now, as other factors will favorise
         # actions that lead to getting cells in our possession
 
+        # ---- off board
+        for unit in self.get_units():
+            is_off = self.is_off_board(unit['position']['x'], unit['position']['y'])
+            if is_off:
+                score += SCORE['off-board']
+                return score
+
         # -- tail collision
         for i, line in enumerate(self.state['cells']):
             for j, cell in enumerate(line):
@@ -54,14 +61,11 @@ class Board:
                 score += SCORE['head-collision']
 
         # --- our head collides with the tail
-        # TODO!
-
-        # ---- off board
         for unit in self.get_units():
-            is_off = self.is_off_board(unit['position']['x'], unit['position']['y'])
-            if is_off:
-                score += SCORE['off-board']
-                return score
+            collision = self.cell_has_tail(unit['position']['x'], unit['position']['y'])
+            if collision:
+                score += SCORE['head-tail-collision']
+
         return score
 
     def is_cell_pending(self, cell):
@@ -110,3 +114,9 @@ class Board:
         for unit in self.get_units():
             res = unit['position']['x'] == x and unit['position']['y'] == y
         return res
+
+    def cell_has_tail(self, y, x):
+        cell = self.get_cell(x, y)
+        print(cell)
+        return 'unit' in cell['attack'] and cell['attack']['unit'] == US and cell['attack']['can']
+

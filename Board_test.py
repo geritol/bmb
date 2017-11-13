@@ -39,3 +39,12 @@ def test_board_scoring_tail_collision():
         'units': [{'position': {'x': 0, 'y': 0}, 'killer': 6, 'owner': US, 'health': 3, 'direction': 'right'}]
     })
     assert board.evaluate() == SCORE['cell-in-our-possession-multiplier'] + SCORE['tail-collision']
+
+
+def test_board_scoring_head_tail_collision():
+    board = Board({
+        'cells': [[{'attack': {'can': True}, 'owner': US}, {'attack': {'can': True, 'unit': US}, 'owner': ENEMY}, {'attack': {'can': True}, 'owner': ENEMY}]],
+        'enemies': [{'direction': {'vertical': 'up', 'horizontal': 'left'}, 'position': {'x': 0, 'y': 2}}],
+        'units': [{'position': {'x': 0, 'y': 1}, 'killer': 6, 'owner': US, 'health': 3, 'direction': 'right'}]
+    })
+    assert board.evaluate() == SCORE['cell-in-our-possession-multiplier'] + SCORE['head-tail-collision']
