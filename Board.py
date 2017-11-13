@@ -71,7 +71,8 @@ class Board:
     def is_cell_pending(self, cell):
         return 'unit' in cell['attack'] and cell['attack']['can']
 
-    def can_enemy_attack_cell(self, cell):
+    def can_enemy_attack_coordinates(self, x, y):
+        cell = self.get_cell(x, y)
         return cell['attack'] and cell['attack']['can']
 
     def get_cell_count_owned_by(self, player):
