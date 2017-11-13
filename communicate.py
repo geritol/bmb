@@ -77,7 +77,7 @@ def read_socket_data(socket):
         finished = True
         try:
             # read throws error if message is not complete
-            response_schema_capnp.Response.from_bytes(res).to_dict()
+            response_schema_capnp.Response.from_bytes(res)
         except:
             finished = False
 
