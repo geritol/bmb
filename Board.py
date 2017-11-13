@@ -72,7 +72,7 @@ class Board:
         return 'unit' in cell['attack'] and cell['attack']['can']
 
     def can_enemy_attack_coordinates(self, x, y):
-        cell = self.get_cell(x, y)
+        cell = self.get_cell(y, x)
         return cell['attack'] and cell['attack']['can']
 
     def get_cell_count_owned_by(self, player):

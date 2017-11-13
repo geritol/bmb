@@ -10,7 +10,7 @@ simulated_board = {
 
 to_delta = {
     'left': -1,
-    'right': +1
+    'right': +1,
     'up': -1,
     'down': +1
 }
@@ -28,16 +28,19 @@ def cell_coords_to_check(enemy):
     vertical_direction = enemy['direction']['vertical']
     x = enemy['position']['x']
     y = enemy['position']['y']
-    return [{'x': x + to_delta[horizontal_direction], 'y': y,
-             'direction_if_bounce': {'horizontal': flip[horizontal_direction], 'vertical': vertical_direction}},
-            {'x':x, 'y': y + to_delta[vertical_direction,
-             'direction_if_bounce': {'horizontal': horizontal_direction, 'vertical': flip[vertical_direction]}]}]
+    return [{'x': x + to_delta[vertical_direction], 'y': y,
+             'direction_if_bounce': {'horizontal': horizontal_direction, 'vertical': flip[vertical_direction]},
+             'next_x': x, 'next_y': y + to_delta[horizontal_direction] * 2},
+            {'x':x, 'y': y + to_delta[horizontal_direction],
+             'direction_if_bounce': {'horizontal': flip[horizontal_direction], 'vertical': vertical_direction},
+             'next_x': x + to_delta[vertical_direction] * 2, 'next_y': y}]
 
 def bounces(coords_to_check, simulated_board):
+    print(coords_to_check)
     for coord_to_check in coords_to_check:
-        is_bounce = not simulated_board.board.can_enemy_attack_coordinates(coord_to_check['x'], coord_to_check['y'])
+        is_bounce = not simulated_board['board'].can_enemy_attack_coordinates(coord_to_check['x'], coord_to_check['y'])
         if is_bounce:
-            return coord_to_check['direction_if_bounce']
+            return coord_to_check
     return False
 
 def move_enemy(enemy, simulated_board):
@@ -46,14 +49,15 @@ def move_enemy(enemy, simulated_board):
     bounce = bounces(coords_to_check, simulated_board)
     new_enemy = copy.deepcopy(enemy)
 
-    if bounce:
-        new_enemy['direction'] = bounce
-
     next_position = {
         'x': new_enemy['position']['x'] + to_delta[enemy['direction']['horizontal']],
-        'y': new_enemy['position']['y'] +to_delta[enemy['direction']['vertical']]
+        'y': new_enemy['position']['y'] + to_delta[enemy['direction']['vertical']]
     }
     new_enemy['position'] = next_position
+
+    if bounce:
+        new_enemy['direction'] = bounce['direction_if_bounce']
+        new_enemy['position'] = {'x': bounce['next_x'], 'y': bounce['next_y']}
 
     return new_enemy
 
