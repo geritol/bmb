@@ -1,55 +1,36 @@
 import socket
 import capnp
 from Board import Board
+import settings
+import time
+
 
 capnp.remove_import_hook()
 request_schema_capnp = capnp.load('./protokoll/Command.capnp')
 response_schema_capnp = capnp.load('./protokoll/Response.capnp')
-import settings
 
 TCP_DOMAIN = settings.endpoint.split(':')[0]
 TCP_PORT = int(settings.endpoint.split(':')[1])
 BUFFER_SIZE = 1024
 
 
-def connect(loggin_info):
+def connect():
+
+    # setup login data
+    request_payload = create_login_message(settings.team, settings.hash)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((TCP_DOMAIN, TCP_PORT))
 
-    s.send(loggin_info.to_bytes())
+    s.send(request_payload.to_bytes())
+    # read out first response
     read_socket_data(s)
 
+    start_time = time.time()
     res = move(s, [{'unit': 0, 'direction': 'right'}])
+    print('finished in {} ms'.format(time.time() - start_time))
 
-    board = Board(res)
-    # print(board)
-    # print(board.state)
-    print(board.state['units'])
-
-    res = move(s, [{'unit': 0, 'direction': 'down'}])
-    board = Board(res)
-    # print(board)
-    # print(board.state)
-    print(str(board.evaluate()))
-
-    res = move(s, [{'unit': 0, 'direction': 'right'}])
-    board = Board(res)
-    #print(board)
-    # print(board.state)
-    print(board.state['units'])
-
-    res = move(s, [{'unit': 0, 'direction': 'right'}])
-    board = Board(res)
-    print(board)
-    # print(board.state)
-    print(board.state['units'])
-
-    while True:
-        response = move(s, [{'unit': 0, 'direction': 'down'}])
-        print("Response status: {}".format(response['status']))
-        board = Board(response)
-        print(board)
+    s.close()
 
 
 def move(socket, action_list):
@@ -86,3 +67,11 @@ def read_socket_data(socket):
     response = response_schema_capnp.Response.from_bytes(res).to_dict()
     print('Response length: {}'.format(len(res)))
     return response
+
+
+def create_login_message(team, hash):
+    request_payload = request_schema_capnp.Command.new_message()
+    login_data = request_payload.init('commands').init('login')
+    login_data.team = team
+    login_data.hash = hash
+    return request_payload
