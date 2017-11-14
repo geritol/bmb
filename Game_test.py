@@ -2,8 +2,7 @@ from Game import *
 from Board import Board
 import pytest
 
-testdata = [
-    (Board({
+test_unit_move = (Board({
         'cells': [[{'attack': {'can': False}}, {'attack': {'can': False}}]],
         'units': [{'direction': 'down', 'position': {'y': 0, 'x': 0}, 'killer': 6, 'health': 3, 'owner': 1}],
         'enemies': []
@@ -15,6 +14,25 @@ testdata = [
          'enemies': []
      })
     )
+
+test_simple_bounce = (Board({
+        'cells': [[{'attack': {'can': False}}, {'attack': {'can': False}}, {'attack': {'can': False}}],
+                  [{'attack': {'can': True}}, {'attack': {'can': True}}, {'attack': {'can': True}}]],
+        'units': [{'direction': 'down', 'position': {'y': 0, 'x': 0}, 'killer': 6, 'health': 3, 'owner': 1}],
+        'enemies': [{'direction': {'vertical': 'up', 'horizontal': 'right'}, 'position': {'x': 1, 'y': 1}}]
+    }),
+    [{'unit': 0, 'direction': 'right'}],
+    Board({
+         'cells': [[{'attack': {'can': False}}, {'attack': {'can': False}}, {'attack': {'can': False}}],
+                  [{'attack': {'can': True}}, {'attack': {'can': True}}, {'attack': {'can': True}}]],
+         'units': [{'direction': 'right', 'position': {'y': 1, 'x': 0}, 'killer': 6, 'health': 3, 'owner': 1}],
+         'enemies': [{'direction': {'vertical': 'down', 'horizontal': 'right'}, 'position': {'x': 1, 'y': 3}}]
+     })
+    )
+
+testdata = [
+    test_unit_move,
+    test_simple_bounce
 ]
 
 
