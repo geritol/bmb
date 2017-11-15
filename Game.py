@@ -22,7 +22,7 @@ class Game:
 
     def move(self, action_list):
         """
-        Applies the actions to self.current_Board, and returns the new Board
+        Applies the actions to self.current_Board, and returns the new Board or False if a unit dies!
         """
         next_board = copy.deepcopy(self.current_Board)
 
@@ -37,27 +37,48 @@ class Game:
                 next_unit['position']['y'] += to_delta[action['direction']]
             next_units.append(next_unit)
 
+        # TODO: enemies bounce randomly!
         # move enemies
         next_enemies = []
         for enemy in next_board.get_enemies():
             next_enemy = self.move_enemy(enemy)
             next_enemies.append(next_enemy)
 
-        # TODO: apply moves!!
+        # apply moves
+        next_board.state['units'] = next_units
+        next_board.state['enemies'] = next_enemies
+
         # check if unit dies or not
+        if next_board.some_of_our_guys_die():
+            return False
+
+        # keep track of the 'tail'
+        for i, unit in enumerate(next_board.get_units()):
+            cell = next_board.get_cell(unit['position']['x'], unit['position']['y'])
+            if cell['attack']['can']:
+                cell['attack']['unit'] = i
 
         # check if unit ends up on a 'safe space'
-        # if yes, mark tail as safe
+        # if yes, mark tail (nodes that can be attacked but owned by unit) as safe
+        for i, unit in enumerate(next_board.get_units()):
+            if next_board.is_cell_safe(unit['position']['x'], unit['position']['y']):
+                for cell in next_board.get_cells():
+                    if next_board.is_cell_tail_of_unit(cell, i):
+                        # mark cell as owned by us
+                        cell['owner'] = US
+                        cell['attack'].pop('unit', None)
+
+        self.current_Board = next_board
 
         # if not dead, gather connected empty cells
         # check if connections have units
         # if no enemy on the connected cells, mark as owned by us
         connected_empty_cell_coordinates = self.get_connected_empty_cell_coordinate()
-        print(connected_empty_cell_coordinates)
+        #print(connected_empty_cell_coordinates)
         for connected_cordinates in connected_empty_cell_coordinates:
             no_enemy = True
             for cordinates in connected_cordinates:
-                if self.current_Board.cell_has_enemy(*cordinates):
+                if next_board.cell_has_enemy(*cordinates):
                     no_enemy = False
                     break
             if no_enemy:
@@ -66,9 +87,6 @@ class Game:
                     cell = next_board.get_cell(*cordinates)
                     cell['owner'] = US
 
-        # assemble board
-        next_board.state['units'] = next_units
-        next_board.state['enemies'] = next_enemies
         self.current_Board = next_board
         return self.current_Board
 
@@ -80,18 +98,18 @@ class Game:
                 coordinates_to_check = [[i, j]]
                 connected = []
                 while len(coordinates_to_check) > 0:
-                    print('cords to check: ', coordinates_to_check)
+                    # print('cords to check: ', coordinates_to_check)
                     current = coordinates_to_check.pop()
                     cell = self.current_Board.get_cell(*current)
                     if str(current) in visited_cells:
                         continue
-                    if not cell['attack']['can']:
+                    if not cell['attack']['can'] or 'owner' in cell:
                         continue
                     connected.append(current)
                     visited_cells[str(current)] = True
                     coordinates_to_check += self.get_neighbor_cell_coordinate(*current)
-                    print('cords to check: (2) ', coordinates_to_check)
-                    print(connected)
+                    # print('cords to check: (2) ', coordinates_to_check)
+                    # print(connected)
                 if connected:
                     result.append(connected)
         return result
