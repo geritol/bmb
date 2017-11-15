@@ -62,7 +62,7 @@ class Board:
 
         # --- our head collides with the tail
         for unit in self.get_units():
-            collision = self.cell_has_tail(unit['position']['x'], unit['position']['y'])
+            collision = self.cell_has_tail(unit['position']['y'], unit['position']['x'])
             if collision:
                 score += SCORE['head-tail-collision']
 
@@ -72,7 +72,7 @@ class Board:
         return 'unit' in cell['attack'] and cell['attack']['can']
 
     def can_enemy_attack_coordinates(self, x, y):
-        cell = self.get_cell(y, x)
+        cell = self.get_cell(x, y)
         return cell['attack'] and cell['attack']['can']
 
     def get_cell_count_owned_by(self, player):
@@ -105,7 +105,7 @@ class Board:
         return self.state['units']
 
     def get_cell(self, x, y):
-        return self.state['cells'][y][x]
+        return self.state['cells'][x][y]
 
     def cell_has_enemy(self, x, y):
         res = False

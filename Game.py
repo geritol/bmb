@@ -1,4 +1,5 @@
 import copy
+from Board_settings import *
 
 to_delta = {
     'left': -1,
@@ -43,12 +44,74 @@ class Game:
             next_enemies.append(next_enemy)
 
         # TODO: apply moves!!
+        # check if unit dies or not
+
+        # check if unit ends up on a 'safe space'
+        # if yes, mark tail as safe
+
+        # if not dead, gather connected empty cells
+        # check if connections have units
+        # if no enemy on the connected cells, mark as owned by us
+        connected_empty_cell_coordinates = self.get_connected_empty_cell_coordinate()
+        print(connected_empty_cell_coordinates)
+        for connected_cordinates in connected_empty_cell_coordinates:
+            no_enemy = True
+            for cordinates in connected_cordinates:
+                if self.current_Board.cell_has_enemy(*cordinates):
+                    no_enemy = False
+                    break
+            if no_enemy:
+                # mark cells as possessed by us
+                for cordinates in connected_cordinates:
+                    cell = next_board.get_cell(*cordinates)
+                    cell['owner'] = US
 
         # assemble board
         next_board.state['units'] = next_units
         next_board.state['enemies'] = next_enemies
         self.current_Board = next_board
         return self.current_Board
+
+    def get_connected_empty_cell_coordinate(self):
+        result = []
+        visited_cells = {}
+        for i, line in enumerate(self.current_Board.state['cells']):
+            for j in range(len(line)):
+                coordinates_to_check = [[i, j]]
+                connected = []
+                while len(coordinates_to_check) > 0:
+                    print('cords to check: ', coordinates_to_check)
+                    current = coordinates_to_check.pop()
+                    cell = self.current_Board.get_cell(*current)
+                    if str(current) in visited_cells:
+                        continue
+                    if not cell['attack']['can']:
+                        continue
+                    connected.append(current)
+                    visited_cells[str(current)] = True
+                    coordinates_to_check += self.get_neighbor_cell_coordinate(*current)
+                    print('cords to check: (2) ', coordinates_to_check)
+                    print(connected)
+                if connected:
+                    result.append(connected)
+        return result
+
+    def get_neighbor_cell_coordinate(self, x, y):
+        result = []
+        width = self.current_Board.width
+        height = self.current_Board.height
+        for x_delta in [-1, 0, 1]:
+            for y_delta in [-1, 0, 1]:
+                neighbor_x = x + x_delta
+                neighbor_y = y + y_delta
+                if x_delta != 0 and y_delta != 1:
+                    continue
+                if 0 > neighbor_x or neighbor_x > height - 1:
+                    continue
+                if 0 > neighbor_y or neighbor_y > width - 1:
+                    continue
+                result.append([neighbor_x, neighbor_y])
+        return result
 
     def cell_coords_to_check(self, enemy):
         horizontal_direction = enemy['direction']['horizontal']
