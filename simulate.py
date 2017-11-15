@@ -19,17 +19,17 @@ def simulate(simulated_board):
     possible_unit_actions = []
 
     # generate possible moves for units
-    for unit in simulated_board['board'].get_units():
+    for i, unit in enumerate(simulated_board['board'].get_units()):
         possible_unit_action = []
         for direction in ['up', 'left', 'down', 'right']:
-            possible_unit_actions.append({'unit': unit['owner'], 'direction': direction, 'position': copy.copy(unit['position'])})
+            possible_unit_action.append({'unit': i, 'direction': direction, 'position': copy.copy(unit['position'])})
         possible_unit_actions.append(possible_unit_action)
 
-    for possible_unit_action in possible_unit_actions:
+    for possible_unit_action in possible_unit_actions[0]:
         possible_state = {}
-        next_board = Game(possible_unit_action).move(possible_unit_action)
+        next_board = Game(simulated_board['board']).move([possible_unit_action])
         possible_state['board'] = next_board
-        possible_state['actions'] = possible_unit_action
+        possible_state['actions'] = simulated_board['actions'] + [possible_unit_action]
         possible_state['score'] = next_board.evaluate()
         res.append(possible_state)
 
