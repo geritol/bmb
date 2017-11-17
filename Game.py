@@ -1,5 +1,7 @@
 import copy
+import json
 from Board_settings import *
+from Board import Board
 
 to_delta = {
     'left': -1,
@@ -24,12 +26,13 @@ class Game:
         """
         Applies the actions to self.current_Board, and returns the new Board or False if a unit dies!
         """
-        next_board = copy.deepcopy(self.current_Board)
+        next_board = Board(json.loads(json.dumps(self.current_Board.state)))
+        self.current_Board = next_board
 
         # move units
         next_units = []
         for action in action_list:
-            next_unit = copy.deepcopy(next_board.get_units()[action['unit']])
+            next_unit = next_board.get_units()[action['unit']]
             next_unit['direction'] = action['direction']
             if action['direction'] in ['up', 'down']:
                 next_unit['position']['x'] += to_delta[action['direction']]
@@ -60,6 +63,8 @@ class Game:
 
         # check if unit ends up on a 'safe space'
         # if yes, mark tail (nodes that can be attacked but owned by unit) as safe
+        had_tail = False
+
         for i, unit in enumerate(next_board.get_units()):
             if next_board.is_cell_safe(unit['position']['x'], unit['position']['y']):
                 for cell in next_board.get_cells():
@@ -67,27 +72,26 @@ class Game:
                         # mark cell as owned by us
                         cell['owner'] = US
                         cell['attack'].pop('unit', None)
+                        had_tail = True
 
-        self.current_Board = next_board
-
-        # if not dead, gather connected empty cells
-        # check if connections have units
-        # if no enemy on the connected cells, mark as owned by us
-        connected_empty_cell_coordinates = self.get_connected_empty_cell_coordinate()
-        #print(connected_empty_cell_coordinates)
-        for connected_cordinates in connected_empty_cell_coordinates:
-            no_enemy = True
-            for cordinates in connected_cordinates:
-                if next_board.cell_has_enemy(*cordinates):
-                    no_enemy = False
-                    break
-            if no_enemy:
-                # mark cells as possessed by us
+        if had_tail:
+            # if not dead, gather connected empty cells
+            # check if connections have units
+            # if no enemy on the connected cells, mark as owned by us
+            connected_empty_cell_coordinates = self.get_connected_empty_cell_coordinate()
+            #print(connected_empty_cell_coordinates)
+            for connected_cordinates in connected_empty_cell_coordinates:
+                no_enemy = True
                 for cordinates in connected_cordinates:
-                    cell = next_board.get_cell(*cordinates)
-                    cell['owner'] = US
+                    if next_board.cell_has_enemy(*cordinates):
+                        no_enemy = False
+                        break
+                if no_enemy:
+                    # mark cells as possessed by us
+                    for cordinates in connected_cordinates:
+                        cell = next_board.get_cell(*cordinates)
+                        cell['owner'] = US
 
-        self.current_Board = next_board
         return self.current_Board
 
     def get_connected_empty_cell_coordinate(self):
@@ -155,7 +159,7 @@ class Game:
         # check next cell, if nothing there move there
         coords_to_check = self.cell_coords_to_check(enemy)
         bounce = self.bounces(coords_to_check)
-        new_enemy = copy.deepcopy(enemy)
+        new_enemy = enemy
 
         # TODO: corner bounce!
 

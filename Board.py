@@ -161,6 +161,5 @@ class Board:
 
     def cell_has_tail(self, y, x):
         cell = self.get_cell(x, y)
-        print(cell)
         return 'unit' in cell['attack'] and cell['attack']['unit'] == US and cell['attack']['can']
 

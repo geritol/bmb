@@ -1,7 +1,6 @@
 import copy
 from Game import Game
-"""
-simulated_board = {
+"""ulated_board = {
     board: instance of Board,
     actions: actions taken by our units after the previous state, to achieve this state,
     probability: probability that this state is achieved,
@@ -28,9 +27,11 @@ def simulate(simulated_board):
     for possible_unit_action in possible_unit_actions[0]:
         possible_state = {}
         next_board = Game(simulated_board['board']).move([possible_unit_action])
-        possible_state['board'] = next_board
-        possible_state['actions'] = simulated_board['actions'] + [possible_unit_action]
-        possible_state['score'] = next_board.evaluate()
-        res.append(possible_state)
+        if (next_board):
+            # if not dead
+            possible_state['board'] = next_board
+            possible_state['actions'] = simulated_board['actions'] + [[possible_unit_action]]
+            possible_state['score'] = next_board.evaluate()
+            res.append(possible_state)
 
     return res
