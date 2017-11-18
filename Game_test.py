@@ -31,21 +31,6 @@ test_simple_bounce = (Board({
      })
     )
 
-test_simple_board_connect = (Board({
-        'cells': [[{'attack': {'can': True}}, {'attack': {'can': True}}],
-                  [{'attack': {'can': True}}, {'attack': {'can': True}}]],
-        'units': [],
-        'enemies': []
-    }),
-    [],
-    Board({
-         'cells': [[{'attack': {'can': True}, 'owner': US}, {'attack': {'can': True}, 'owner': US}],
-                   [{'attack': {'can': True}, 'owner': US}, {'attack': {'can': True}, 'owner': US}]],
-         'units': [],
-         'enemies': []
-     })
-    )
-
 test_simple_board_connect_enemy = (Board({
         'cells': [[{'attack': {'can': True}}, {'attack': {'can': True}}],
                   [{'attack': {'can': True}}, {'attack': {'can': True}}]],
@@ -104,7 +89,6 @@ test_simple_board_tail = (Board({
 testdata = [
     test_unit_move,
     test_simple_bounce,
-    test_simple_board_connect,
     test_simple_board_connect_enemy,
     test_simple_board_connect_enemy_unit,
     test_simple_board_tail
