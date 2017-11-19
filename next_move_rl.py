@@ -1,12 +1,13 @@
 """
 rl stands for reinforcement learning
 """
-# TODO: add move count to the score
 import numpy as np
 from ddqn import DQNAgent
 from Game import Game
 from Board import Board
 from reduce_state import reduce_state
+
+PENALTY_PER_MOVE = -1
 
 empty_state = [[{}, {}, {}, {}, {}, {}, {}],
                 [{}, {}, {}, {}, {}, {}, {}],
@@ -19,7 +20,7 @@ def move(state, action):
     next_board = Game(Board(state)).move(action)
     print(next_board)
     if next_board:
-        score = next_board.evaluate()
+        score = next_board.evaluate() + PENALTY_PER_MOVE
         return convert_to_list(reduce_state(next_board.state)[action[0]['unit']]), score, False, None
     else:
         score = -10000
