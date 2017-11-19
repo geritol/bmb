@@ -3,7 +3,8 @@ import capnp
 from Board import Board
 import settings
 import time
-
+from Game import Game
+from next_move_rl import next_move
 
 capnp.remove_import_hook()
 request_schema_capnp = capnp.load('./protokoll/Command.capnp')
@@ -24,13 +25,27 @@ def connect():
 
     s.send(request_payload.to_bytes())
     # read out first response
-    read_socket_data(s)
+    res = read_socket_data(s)
 
     start_time = time.time()
-    res = move(s, [{'unit': 0, 'direction': 'right'}])
+
+    g = Game(Board(res)).move([{'unit': 0, 'direction': 'right'}])
+    g.evaluate()
     print('finished in {} ms'.format(time.time() - start_time))
 
+    while True:
+        start_time = time.time()
+
+        next_moves = next_move(res)
+        print(next_moves)
+        # TODO: do not wait for response if we are slower than 2 secs
+        res = move(s, next_moves)
+        board = Board(res)
+        print(board)
+        print('finished in {} ms'.format(time.time() - start_time))
+
     s.close()
+
 
 
 def move(socket, action_list):
@@ -44,9 +59,19 @@ def move(socket, action_list):
     socket.send(request_payload.to_bytes())
 
     response = read_socket_data(socket)
-    print("Rsponse status: {}".format(response['status']))
+    print("Response status: {}".format(response['status']))
+
+    if is_dead(response['status']):
+        print('\n\nDEAD ... :(')
+        print('Closing connection and restarting...')
+        socket.close()
+        connect()
+        return
     return response
 
+
+def is_dead(status):
+    return status.startswith("All unit is dead")
 
 def read_socket_data(socket):
     res = b''
