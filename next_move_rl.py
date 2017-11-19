@@ -70,7 +70,7 @@ def convert_to_list(state):
 state_size = 245
 action_size = 4
 agent = DQNAgent(state_size, action_size)
-agent.load(FILE_NAME)
+#agent.load(FILE_NAME)
 batch_size = 32
 
 derections = {
