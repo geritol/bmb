@@ -1,6 +1,7 @@
 """
 rl stands for reinforcement learning
 """
+# TODO: add move count to the score
 import numpy as np
 from ddqn import DQNAgent
 from Game import Game

@@ -107,7 +107,7 @@ class Game:
                     cell = self.current_Board.get_cell(*current)
                     if str(current) in visited_cells:
                         continue
-                    if not cell['attack']['can'] or 'owner' in cell:
+                    if ('can' in cell['attack'] and not cell['attack']['can']) or 'owner' in cell:
                         continue
                     connected.append(current)
                     visited_cells[str(current)] = True
