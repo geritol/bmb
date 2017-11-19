@@ -88,11 +88,11 @@ class Board:
                 res['head-collision'] += 1
 
         # --- our head collides with the tail
-        res['head-tail-collision'] = 0
-        for unit in self.get_units():
-            collision = self.cell_has_tail(unit['position']['y'], unit['position']['x'])
-            if collision:
-                res['head-tail-collision'] += 1
+        # res['head-tail-collision'] = 0
+        # for unit in self.get_units():
+        #     collision = self.cell_has_tail(unit['position']['y'], unit['position']['x'])
+        #     if collision:
+        #         res['head-tail-collision'] += 1
 
         self.dead_by = res
         return res
