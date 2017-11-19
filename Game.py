@@ -58,7 +58,7 @@ class Game:
         # keep track of the 'tail'
         for i, unit in enumerate(next_board.get_units()):
             cell = next_board.get_cell(unit['position']['x'], unit['position']['y'])
-            if cell['attack']['can']:
+            if 'can' in cell['attack'] and cell['attack']['can']:
                 cell['attack']['unit'] = i
 
         # check if unit ends up on a 'safe space'

@@ -103,10 +103,10 @@ class Board:
         return 'owner' in cell and cell['owner'] == US
 
     def is_cell_tail_of_unit(self, cell, unit_index):
-        return 'unit' in cell['attack'] and cell['attack']['unit'] == unit_index and cell['attack']['can']
+        return 'unit' in cell['attack'] and cell['attack']['unit'] == unit_index  and 'can' in cell['attack'] and cell['attack']['can']
 
     def is_cell_pending(self, cell):
-        return 'unit' in cell['attack'] and cell['attack']['can']
+        return 'unit' in cell['attack'] and 'can' in cell['attack'] and cell['attack']['can']
 
     def can_enemy_attack_coordinates(self, x, y):
         cell = self.get_cell(x, y)
