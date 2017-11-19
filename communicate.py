@@ -33,16 +33,22 @@ def connect():
     g.evaluate()
     print('finished in {} ms'.format(time.time() - start_time))
 
+    move_count = 0
+
     while True:
         start_time = time.time()
 
-        next_moves = next_move(res)
+        next_moves = next_move(res, move_count)
+        move_count += 1
         print(next_moves)
-        # TODO: do not wait for response if we are slower than 2 secs
-        res = move(s, next_moves)
-        board = Board(res)
-        print(board)
-        print('finished in {} ms'.format(time.time() - start_time))
+        # not wait for response if we are slower than 2 secs
+        if time.time() - start_time < 2:
+            res = move(s, next_moves)
+            board = Board(res)
+            print(board)
+            print('finished in {} ms'.format(time.time() - start_time))
+        else:
+            print('too slow, skipped :/')
 
     s.close()
 
