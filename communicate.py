@@ -68,6 +68,7 @@ def move(socket, action_list):
     print("Response status: {}".format(response['status']))
 
     if is_dead(response['status']):
+        # TODO: if dead save scores to a file, to be able to see performance change over time
         print('\n\nDEAD ... :(')
         print('Closing connection and restarting...')
         socket.close()
